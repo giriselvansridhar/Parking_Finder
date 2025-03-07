@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landlord Sign Up</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    body {
+      background: linear-gradient(to right, #ff9966, #ff5e62);
+    }
+    #map {
+      width: 100%;
+      height: 300px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen p-4">
+  <div class="bg-white w-full max-w-md p-6 rounded-xl shadow-lg text-center">
+    <h2 class="text-2xl font-bold text-orange-600 mb-4">Landlord Sign Up</h2>
+    
+    <!-- Django Form Handling -->
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {{ form.as_p }}
+      
+      <label class="block text-left font-medium text-gray-700">Select Your Location:</label>
+      <div id="map"></div>
+      <input type="hidden" id="latitude" name="latitude">
+<input type="hidden" id="longitude" name="longitude">
+
+      <div class="flex space-x-2 mt-2">
+        <input type="text" id="manual-lat" placeholder="Latitude" name="lat" class="w-1/2 p-2 border rounded-lg"/>
+        <input type="text" id="manual-lng" placeholder="Longitude" name="lon" class="w-1/2 p-2 border rounded-lg"/>
+        <button type="button" id="set-location" class="bg-blue-500 text-white px-3 py-2 rounded-lg">Set</button>
+      </div>
+
+      <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg transition">
+        <i class="fas fa-user-plus"></i> Sign Up
+      </button>
+     
+    </form>
+    
+    <!-- Login Button -->
+    <button onclick="location.href = '{% url 'LandLord_Login' %}'" 
+      class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg mt-3 transition">
+      <i class="fas fa-sign-in-alt"></i> Login
+    </button>
+  </div>
+
+  <!-- Switch Button: Are you a Parker? -->
+  <a href="{% url 'Parker_Login' %}" 
+    class="fixed bottom-5 left-5 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg shadow-lg transition">
+    <i class="fas fa-car"></i> Are you a Parker?
+  </a>
+  
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3ViaGFtcHJlZXQiLCJhIjoiY2toY2IwejF1MDdodzJxbWRuZHAweDV6aiJ9.Ys8MP5kVTk5P9V2TDvnuDg';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [78.9629, 20.5937], // Default to India
+      zoom: 4
+    });
+
+    let marker;
+
+    map.on('click', (e) => {
+      const { lng, lat } = e.lngLat;
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lng;
+      document.getElementById('manual-lat').value = lat;
+      document.getElementById('manual-lng').value = lng;
+      
+      if (marker) marker.remove();
+      marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+    });
+
+    document.getElementById('set-location').addEventListener('click', () => {
+      const lat = parseFloat(document.getElementById('manual-lat').value);
+      const lng = parseFloat(document.getElementById('manual-lng').value);
+      
+      if (!isNaN(lat) && !isNaN(lng)) {
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        
+        if (marker) marker.remove();
+        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+        map.flyTo({ center: [lng, lat], zoom: 12 });
+      }
+    });
+
+    // **ADD THIS CODE HERE**
+    document.querySelector("form").addEventListener("submit", function() {
+    let latInput = document.getElementById("manual-lat");
+    let lngInput = document.getElementById("manual-lng");
+
+    let lat = parseFloat(latInput.value).toFixed(10);  // Convert to exactly 10 decimal places
+    let lng = parseFloat(lngInput.value).toFixed(10);
+
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lng;
+
+    latInput.value = lat;  // Update input fields with formatted values
+    lngInput.value = lng;
+});
+
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Landlord Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="bg-gradient-to-r from-orange-400 to-orange-600 h-screen flex items-center justify-center">
+
+<div class="bg-white p-8 rounded-xl shadow-lg w-96">
+    <h2 class="text-2xl font-bold mb-6 text-center text-orange-600">Landlord Login</h2>
+    
+    <form method="POST" onsubmit="return combinePin()">
+        {% csrf_token %}
+        
+        <!-- Phone Number Input -->
+        <input type="text" id="phone" name="phone" placeholder="Enter phone number"
+               class="w-full mb-4 p-2 border border-gray-300 rounded focus:outline-none focus:border-orange-500" required />
+
+        <!-- Hidden input to send combined PIN -->
+        <input type="hidden" id="combined-pin" name="pin" />
+
+        <!-- PIN Inputs -->
+        <div class="flex justify-between mb-4">
+            <input type="text" id="pin1" name="pin1"
+                   class="w-12 h-12 text-center border border-gray-300 rounded focus:outline-none focus:border-orange-500"
+                   maxlength="1" oninput="moveNext(this, 'pin2')" required />
+            <input type="text" id="pin2" name="pin2"
+                   class="w-12 h-12 text-center border border-gray-300 rounded focus:outline-none focus:border-orange-500"
+                   maxlength="1" oninput="moveNext(this, 'pin3')" required />
+            <input type="text" id="pin3" name="pin3"
+                   class="w-12 h-12 text-center border border-gray-300 rounded focus:outline-none focus:border-orange-500"
+                   maxlength="1" oninput="moveNext(this, 'pin4')" required />
+            <input type="text" id="pin4" name="pin4"
+                   class="w-12 h-12 text-center border border-gray-300 rounded focus:outline-none focus:border-orange-500"
+                   maxlength="1" required />
+        </div>
+
+        <button type="submit"
+                class="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition">Login</button>
+
+        <div class="flex justify-between mt-4 text-sm">
+            <a href="{% url 'LandLord_Register' %}" class="text-orange-500 hover:underline">Sign Up</a>
+            <a href="{% url 'Parker_Login' %}"
+               class="text-orange-500 hover:underline">Are you a Parker?</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function moveNext(current, nextId) {
+        if (current.value.length === 1) {
+            const nextBox = document.getElementById(nextId);
+            if (nextBox) {
+                nextBox.focus();
+            }
+        }
+    }
+
+    function combinePin() {
+        const pin1 = document.getElementById("pin1").value;
+        const pin2 = document.getElementById("pin2").value;
+        const pin3 = document.getElementById("pin3").value;
+        const pin4 = document.getElementById("pin4").value;
+        const combinedPin = pin1 + pin2 + pin3 + pin4;
+
+        document.getElementById("combined-pin").value = combinedPin;
+
+        if (combinedPin.length < 4) {
+            alert("Please enter the complete 4-digit PIN.");
+            return false;
+        }
+        return true;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Location & Parking</title>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css" rel="stylesheet" />
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100vw; height: 85vh; }
+    #bottom-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+      padding: 10px;
+      max-height: 15vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .location {
+      width: 90%;
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #f8f8f8;
+      font-size: 14px;
+    }
+    .location:hover { background: #e0e0e0; }
+    .mapboxgl-ctrl-directions {
+      max-width: 250px; /* Smaller directions box for mobile */
+    }
+    @media (max-width: 768px) {
+      #map { height: 80vh; }
+      #bottom-panel { max-height: 20vh; }
+      .location { font-size: 12px; padding: 8px; }
+      .mapboxgl-ctrl-directions { max-width: 200px; }
+    }
+  </style>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+  <div id="bottom-panel">
+    {% for landlord in landlords %}
+      {% if landlord.latitude and landlord.longitude %}
+        <div class="location" data-lng="{{ landlord.longitude }}" data-lat="{{ landlord.latitude }}">
+          <strong>{{ landlord.name }}'s Parking</strong><br>
+          Location: {{ landlord.address }}, {{ landlord.city }}<br>
+          30₹/hr
+          <button class="accept-btn" data-phone="{{ landlord.phone }}">Accept</button>
+          <button class="reject-btn">Reject</button>
+        </div>
+      {% endif %}
+    {% endfor %}
+</div>
+
+<!-- Popup Modal -->
+<div id="call-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Call <strong id="landlord-name"></strong> at:</p>
+    <a id="call-number" href="">📞 <span id="landlord-phone"></span></a>
+  </div>
+</div>
+
+<style>
+  .accept-btn, .reject-btn {
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 5px;
+  }
+
+  .accept-btn {
+    background-color: green;
+    color: white;
+  }
+
+  .reject-btn {
+    background-color: red;
+    color: white;
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    margin: 15% auto;
+    width: 300px;
+    text-align: center;
+    border-radius: 10px;
+  }
+
+  .close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const modal = document.getElementById("call-modal");
+    const closeBtn = document.querySelector(".close");
+
+    document.querySelectorAll(".accept-btn").forEach(button => {
+      button.addEventListener("click", function() {
+        let phone = this.getAttribute("data-phone");
+        let landlordName = this.parentElement.querySelector("strong").innerText;
+
+        document.getElementById("landlord-name").innerText = landlordName;
+        document.getElementById("landlord-phone").innerText = phone;
+        document.getElementById("call-number").href = "tel:" + phone;
+        
+        modal.style.display = "block";
+      });
+    });
+
+    document.querySelectorAll(".reject-btn").forEach(button => {
+      button.addEventListener("click", function() {
+        this.parentElement.remove(); // Remove listing on reject
+      });
+    });
+
+    closeBtn.addEventListener("click", function() {
+      modal.style.display = "none";
+    });
+
+    window.addEventListener("click", function(event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  });
+</script>
+
+
+<style>
+  .tick-btn, .cross-btn {
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 5px;
+    background: none;
+  }
+</style>
+
+  
+  <script>
+    mapboxgl.accessToken = "pk.eyJ1Ijoic3ViaGFtcHJlZXQiLCJhIjoiY2toY2IwejF1MDdodzJxbWRuZHAweDV6aiJ9.Ys8MP5kVTk5P9V2TDvnuDg";
+    navigator.geolocation.getCurrentPosition(successLocation, errorLocation, { enableHighAccuracy: true });
+    
+    let userCoordinates;
+    let map;
+    let directions;
+    
+    function successLocation(position) {
+      userCoordinates = [position.coords.longitude, position.coords.latitude];
+      setupMap(userCoordinates);
+    }
+    function errorLocation() {
+      userCoordinates = [80.1514, 12.8406]; // Default to VIT Chennai
+      setupMap(userCoordinates);
+    }
+    
+    function setupMap(center) {
+      map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: center,
+        zoom: 15
+      });
+      
+      map.addControl(new mapboxgl.NavigationControl());
+      
+      new mapboxgl.Marker()
+        .setLngLat(center)
+        .addTo(map)
+        .setPopup(new mapboxgl.Popup({ offset: 25 }).setText("You are here!"))
+        .togglePopup();
+      
+      directions = new MapboxDirections({
+        accessToken: mapboxgl.accessToken,
+        unit: "metric",
+        profile: "mapbox/driving"
+      });
+      
+      map.addControl(directions, "top-left");
+      
+      document.querySelectorAll(".location").forEach(location => {
+        const lng = parseFloat(location.getAttribute("data-lng"));
+        const lat = parseFloat(location.getAttribute("data-lat"));
+        new mapboxgl.Marker({ color: 'red' })
+          .setLngLat([lng, lat])
+          .addTo(map);
+        
+        location.addEventListener("click", () => {
+          directions.setOrigin(userCoordinates);
+          directions.setDestination([lng, lat]);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

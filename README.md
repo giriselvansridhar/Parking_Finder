@@ -6,3 +6,4 @@ To run this on your local computer
 3. pip install -r requirements.txt  
 4. cd
 5. python manage.py runserver
+   

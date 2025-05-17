@@ -11,66 +11,226 @@
   <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
   <style>
     body {
-      background: linear-gradient(to right, #ff9966, #ff5e62);
+      background: linear-gradient(to right, #2a2a2a, #1a1a1a);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: white;
+      margin: 0;
     }
+
     #map {
+      width: 60vw;
+      height: 80vh;
+      border-radius: 15px;
+      margin-right: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-container {
+      width: 35%;
+      padding: 2rem;
+      background-color: rgba(28, 28, 28, 0.85);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      height: 80vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 87, 34, 0.6);
+    }
+
+    .form-title {
+      color: #ff5722;
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .button-orange {
+      background-color: #ff5722;
+      color: white;
+      padding: 0.8rem;
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    .button-orange:hover {
+      background-color: #ff3d00;
+      transform: scale(1.05);
+    }
+
+    .button-link {
+      color: #ff5722;
+      text-decoration: underline;
+      display: block;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .button-link:hover {
+      color: #ff3d00;
+    }
+
+    .location-button {
+      background-color: #ff5722;
+      color: white;
+      padding: 0.8rem;
+      border-radius: 8px;
       width: 100%;
-      height: 300px;
-      border-radius: 10px;
-      margin-top: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    .location-button:hover {
+      background-color: #ff3d00;
+      transform: scale(1.05);
+    }
+
+    input,
+    button {
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border: 2px solid #ff5722;
+      background-color: #333333;
+    }
+
+    input {
+      background-color: #333333;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #444444;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    input::placeholder {
+      color: #bbbbbb;
+    }
+
+    label {
+      color: #bbbbbb;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .input-container {
+      margin-bottom: 20px;
     }
   </style>
 </head>
 
-<body class="flex items-center justify-center min-h-screen p-4">
-  <div class="bg-white w-full max-w-md p-6 rounded-xl shadow-lg text-center">
-    <h2 class="text-2xl font-bold text-orange-600 mb-4">Landlord Sign Up</h2>
-    
-    <!-- Django Form Handling -->
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {{ form.as_p }}
-      
-      <label class="block text-left font-medium text-gray-700">Select Your Location:</label>
-      <div id="map"></div>
-      <input type="hidden" id="latitude" name="latitude">
-<input type="hidden" id="longitude" name="longitude">
+<body>
 
-      <div class="flex space-x-2 mt-2">
-        <input type="text" id="manual-lat" placeholder="Latitude" name="lat" class="w-1/2 p-2 border rounded-lg"/>
-        <input type="text" id="manual-lng" placeholder="Longitude" name="lon" class="w-1/2 p-2 border rounded-lg"/>
-        <button type="button" id="set-location" class="bg-blue-500 text-white px-3 py-2 rounded-lg">Set</button>
-      </div>
+  <!-- Container for both map and form -->
+  <div class="flex justify-center items-center space-x-6">
 
-      <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg transition">
-        <i class="fas fa-user-plus"></i> Sign Up
-      </button>
-     
-    </form>
-    
-    <!-- Login Button -->
-    <button onclick="location.href = '{% url 'LandLord_Login' %}'" 
-      class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg mt-3 transition">
-      <i class="fas fa-sign-in-alt"></i> Login
-    </button>
+    <!-- Map Section -->
+    <div id="map"></div>
+
+    <!-- Form Section -->
+    <div class="form-container">
+      <h2 class="form-title">Landlord Sign Up</h2>
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <!-- Hidden inputs to store actual lat/lon -->
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+
+        <div class="input-container">
+          <label for="manual-lat">Latitude:</label>
+          <input type="text" id="manual-lat" placeholder="Latitude" name="lat"
+            class="p-3 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-lg focus:ring-2 focus:ring-orange-500 focus:outline-none transition" />
+        </div>
+
+        <div class="input-container">
+          <label for="manual-lng">Longitude:</label>
+          <input type="text" id="manual-lng" placeholder="Longitude" name="lon"
+            class="p-3 bg-gray-800 text-white border border-gray-600 rounded-lg shadow-lg focus:ring-2 focus:ring-orange-500 focus:outline-none transition" />
+        </div>
+
+        <div class="flex space-x-4 justify-center">
+          <button type="button" id="set-location" class="button-orange">Set Location on Map</button>
+        </div>
+
+        <button type="button" id="get-location" class="location-button">Get My Location</button>
+
+        <button type="submit"
+          class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-lg shadow-xl transition">
+          <i class="fas fa-user-plus"></i> Sign Up
+        </button>
+      </form>
+
+      <a href="{% url 'LandLord_Register' %}" class="button-link">Already have an account? Login</a>
+    </div>
   </div>
+  <a href="{% url 'admin:index' %}"
+  class="fixed bottom-5 left-5 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg shadow-2xl transition transform hover:scale-105">
+  <i class="fas fa-user-shield"></i> Are you admin?
+</a>
 
-  <!-- Switch Button: Are you a Parker? -->
-  <a href="{% url 'Parker_Login' %}" 
-    class="fixed bottom-5 left-5 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg shadow-lg transition">
-    <i class="fas fa-car"></i> Are you a Parker?
-  </a>
-  
+
   <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic3ViaGFtcHJlZXQiLCJhIjoiY2toY2IwejF1MDdodzJxbWRuZHAweDV6aiJ9.Ys8MP5kVTk5P9V2TDvnuDg';
     const map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [78.9629, 20.5937], // Default to India
+      center: [78.9629, 20.5937],
       zoom: 4
     });
 
     let marker;
+
+    document.getElementById('set-location').addEventListener('click', () => {
+      const lat = parseFloat(document.getElementById('manual-lat').value);
+      const lng = parseFloat(document.getElementById('manual-lng').value);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+
+        if (marker) marker.remove();
+        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+        map.flyTo({ center: [lng, lat], zoom: 12 });
+      }
+    });
+
+    document.getElementById('get-location').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          if (!marker) {
+            marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+          } else {
+            marker.setLngLat([lng, lat]);
+          }
+
+          document.getElementById('manual-lat').value = lat.toFixed(6);
+          document.getElementById('manual-lng').value = lng.toFixed(6);
+          document.getElementById('latitude').value = lat.toFixed(6);
+          document.getElementById('longitude').value = lng.toFixed(6);
+
+          map.flyTo({ center: [lng, lat], zoom: 12 });
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    });
 
     map.on('click', (e) => {
       const { lng, lat } = e.lngLat;
@@ -78,42 +238,25 @@
       document.getElementById('longitude').value = lng;
       document.getElementById('manual-lat').value = lat;
       document.getElementById('manual-lng').value = lng;
-      
+
       if (marker) marker.remove();
       marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
     });
 
-    document.getElementById('set-location').addEventListener('click', () => {
-      const lat = parseFloat(document.getElementById('manual-lat').value);
-      const lng = parseFloat(document.getElementById('manual-lng').value);
-      
-      if (!isNaN(lat) && !isNaN(lng)) {
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-        
-        if (marker) marker.remove();
-        marker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-        map.flyTo({ center: [lng, lat], zoom: 12 });
-      }
+    document.querySelector("form").addEventListener("submit", function () {
+      let latInput = document.getElementById("manual-lat");
+      let lngInput = document.getElementById("manual-lng");
+
+      let lat = parseFloat(latInput.value).toFixed(6);
+      let lng = parseFloat(lngInput.value).toFixed(6);
+
+      document.getElementById("latitude").value = lat;
+      document.getElementById("longitude").value = lng;
+
+      latInput.value = lat;
+      lngInput.value = lng;
     });
-
-    // **ADD THIS CODE HERE**
-    document.querySelector("form").addEventListener("submit", function() {
-    let latInput = document.getElementById("manual-lat");
-    let lngInput = document.getElementById("manual-lng");
-
-    let lat = parseFloat(latInput.value).toFixed(10);  // Convert to exactly 10 decimal places
-    let lng = parseFloat(lngInput.value).toFixed(10);
-
-    document.getElementById("latitude").value = lat;
-    document.getElementById("longitude").value = lng;
-
-    latInput.value = lat;  // Update input fields with formatted values
-    lngInput.value = lng;
-});
-
-
-</script>
+  </script>
 
 </body>
 

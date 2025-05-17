@@ -2,226 +2,186 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Live Location & Parking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
   <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css" rel="stylesheet" />
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; }
-    #map { width: 100vw; height: 85vh; }
-    #bottom-panel {
-      position: absolute;
-      bottom: 0;
-      left: 0;
+    body {
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    }
+    #map {
       width: 100%;
-      background: white;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
-      padding: 10px;
-      max-height: 15vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    .location {
-      width: 90%;
-      padding: 10px;
-      margin: 5px 0;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-      background: #f8f8f8;
-      font-size: 14px;
-    }
-    .location:hover { background: #e0e0e0; }
-    .mapboxgl-ctrl-directions {
-      max-width: 250px; /* Smaller directions box for mobile */
-    }
-    @media (max-width: 768px) {
-      #map { height: 80vh; }
-      #bottom-panel { max-height: 20vh; }
-      .location { font-size: 12px; padding: 8px; }
-      .mapboxgl-ctrl-directions { max-width: 200px; }
+      height: 85vh;
+      border-radius: 12px;
     }
   </style>
+</head>
+<body class="flex flex-col h-screen text-white font-sans">
+
+  <!-- Navbar -->
+  <nav class="w-full bg-gray-900 shadow-md p-4 flex justify-between items-center">
+    <div class="flex items-center space-x-2">
+      <img src="https://media.istockphoto.com/id/1349223345/vector/car-parking-vector-icon-parking-sign.jpg?s=612x612&w=0&k=20&c=vU7b48VYPukuwPhEvwOm8pKfizX3XLi3EGOrWMiYg2g=" 
+           alt="Logo" 
+           class="w-10 h-10 rounded-md shadow" />
+      <span class="text-xl font-bold text-teal-400">Parker Map</span>
+    </div>
+    <div class="space-x-6 text-gray-300">
+      <a href="{% url 'dashboard' %}" class="hover:text-white">Dashboard</a>
+      <a href="{% url 'admin:index' %}" class="hover:text-white">Admin</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="flex flex-col md:flex-row flex-grow">
+    <!-- Map -->
+    <div id="map" class="w-full md:w-3/4 shadow-lg"></div>
+
+    <!-- Sidebar -->
+    <div id="bottom-panel" class="w-full md:w-1/4 bg-gray-800 rounded-t-xl md:rounded-none md:rounded-l-xl shadow-lg md:h-[85vh] md:overflow-y-auto md:fixed right-0 top-16 md:pt-4 md:px-2">
+      {% for landlord in landlords %}
+        {% if landlord.latitude and landlord.longitude %}
+          <div class="location bg-gray-700 p-4 m-2 rounded-xl shadow text-sm space-y-2" data-lng="{{ landlord.longitude }}" data-lat="{{ landlord.latitude }}">
+            <strong class="block text-teal-400 text-base">{{ landlord.name }}'s Parking</strong>
+            <p>{{ landlord.address }}, {{ landlord.city }}</p>
+            <p>₹30/Hour</p>
+            <div class="flex gap-2">
+              <button class="accept-btn bg-teal-500 hover:bg-teal-600 text-white rounded px-4 py-1 text-sm" data-phone="{{ landlord.phone }}">Accept</button>
+              <button class="reject-btn bg-red-500 hover:bg-red-600 text-white rounded px-4 py-1 text-sm">Reject</button>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="call-modal" class="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center hidden">
+    <div class="bg-gray-900 text-white rounded-2xl w-80 p-6 shadow-xl relative">
+      <button class="absolute top-3 right-3 text-gray-400 hover:text-white text-lg" id="close-modal">&times;</button>
+
+      <h2 class="text-xl font-bold mb-2">Confirm Booking</h2>
+      <p class="mb-1">Call <strong id="landlord-name" class="text-teal-400"></strong> at:</p>
+      <a id="call-number" href="#" class="block text-lg font-semibold text-teal-500 mb-2">
+        📞 <span id="landlord-phone"></span>
+      </a>
+      <a id="whatsapp-link" href="#" target="_blank" class="block text-sm text-green-400 mb-4">💬 Message on WhatsApp</a>
+      <div class="border-t border-gray-700 pt-3 mt-6">
+        <p class="text-base font-semibold mb-4 text-teal-400">Make a Payment</p>
+        <div class="flex flex-col space-y-4">
+          <a href="https://payments.google.com/gp/w/u/0/home/paymentmethods?sctid=4666749315988465" target="_blank">
+            <button onclick="showStatus('Paid via UPI ✅')" class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg py-3 text-lg font-medium shadow-md transform transition duration-300 hover:scale-105" style="width:280px;">
+              Pay with UPI
+            </button>
+          </a>
+          
+          <a href="https://payments.google.com/gp/w/u/0/home/paymentmethods?sctid=4666749315988465" target="_blank">
+            <button onclick="showStatus('Paid via Card ✅')" class="bg-teal-600 hover:bg-teal-700 text-white rounded-lg py-3 text-lg font-medium shadow-md transform transition duration-300 hover:scale-105" style="width:280px;">
+              Pay with Card
+            </button>
+          </a>
+        </div>
+        <div id="payment-status" class="mt-4 text-sm text-green-400 font-semibold"></div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Scripts -->
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
-</head>
-<body>
-  <div id="map"></div>
-  <div id="bottom-panel">
-    {% for landlord in landlords %}
-      {% if landlord.latitude and landlord.longitude %}
-        <div class="location" data-lng="{{ landlord.longitude }}" data-lat="{{ landlord.latitude }}">
-          <strong>{{ landlord.name }}'s Parking</strong><br>
-          Location: {{ landlord.address }}, {{ landlord.city }}<br>
-          30₹/hr
-          <button class="accept-btn" data-phone="{{ landlord.phone }}">Accept</button>
-          <button class="reject-btn">Reject</button>
-        </div>
-      {% endif %}
-    {% endfor %}
-</div>
-
-<!-- Popup Modal -->
-<div id="call-modal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <p>Call <strong id="landlord-name"></strong> at:</p>
-    <a id="call-number" href="">📞 <span id="landlord-phone"></span></a>
-  </div>
-</div>
-
-<style>
-  .accept-btn, .reject-btn {
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 5px 10px;
-    margin: 5px;
-    border-radius: 5px;
-  }
-
-  .accept-btn {
-    background-color: green;
-    color: white;
-  }
-
-  .reject-btn {
-    background-color: red;
-    color: white;
-  }
-
-  /* Modal Styles */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    margin: 15% auto;
-    width: 300px;
-    text-align: center;
-    border-radius: 10px;
-  }
-
-  .close {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
-  }
-</style>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const modal = document.getElementById("call-modal");
-    const closeBtn = document.querySelector(".close");
-
-    document.querySelectorAll(".accept-btn").forEach(button => {
-      button.addEventListener("click", function() {
-        let phone = this.getAttribute("data-phone");
-        let landlordName = this.parentElement.querySelector("strong").innerText;
-
-        document.getElementById("landlord-name").innerText = landlordName;
-        document.getElementById("landlord-phone").innerText = phone;
-        document.getElementById("call-number").href = "tel:" + phone;
-        
-        modal.style.display = "block";
-      });
-    });
-
-    document.querySelectorAll(".reject-btn").forEach(button => {
-      button.addEventListener("click", function() {
-        this.parentElement.remove(); // Remove listing on reject
-      });
-    });
-
-    closeBtn.addEventListener("click", function() {
-      modal.style.display = "none";
-    });
-
-    window.addEventListener("click", function(event) {
-      if (event.target === modal) {
-        modal.style.display = "none";
-      }
-    });
-  });
-</script>
-
-
-<style>
-  .tick-btn, .cross-btn {
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    margin-left: 5px;
-    background: none;
-  }
-</style>
-
-  
   <script>
     mapboxgl.accessToken = "pk.eyJ1Ijoic3ViaGFtcHJlZXQiLCJhIjoiY2toY2IwejF1MDdodzJxbWRuZHAweDV6aiJ9.Ys8MP5kVTk5P9V2TDvnuDg";
     navigator.geolocation.getCurrentPosition(successLocation, errorLocation, { enableHighAccuracy: true });
-    
+
     let userCoordinates;
     let map;
     let directions;
-    
+
     function successLocation(position) {
       userCoordinates = [position.coords.longitude, position.coords.latitude];
       setupMap(userCoordinates);
     }
+
     function errorLocation() {
-      userCoordinates = [80.1514, 12.8406]; // Default to VIT Chennai
+      userCoordinates = [80.1514, 12.8406]; // fallback
       setupMap(userCoordinates);
     }
-    
+
     function setupMap(center) {
       map = new mapboxgl.Map({
         container: "map",
-        style: "mapbox://styles/mapbox/streets-v11",
+        style: "mapbox://styles/mapbox/dark-v11",
         center: center,
         zoom: 15
       });
-      
+
       map.addControl(new mapboxgl.NavigationControl());
-      
-      new mapboxgl.Marker()
-        .setLngLat(center)
-        .addTo(map)
-        .setPopup(new mapboxgl.Popup({ offset: 25 }).setText("You are here!"))
-        .togglePopup();
-      
+
+      new mapboxgl.Marker().setLngLat(center).addTo(map);
+
       directions = new MapboxDirections({
         accessToken: mapboxgl.accessToken,
         unit: "metric",
-        profile: "mapbox/driving"
+        profile: "mapbox/driving",
+        controls: {
+          inputs: false,
+          instructions: true
+        }
       });
-      
       map.addControl(directions, "top-left");
-      
+
       document.querySelectorAll(".location").forEach(location => {
         const lng = parseFloat(location.getAttribute("data-lng"));
         const lat = parseFloat(location.getAttribute("data-lat"));
+
         new mapboxgl.Marker({ color: 'red' })
           .setLngLat([lng, lat])
           .addTo(map);
-        
+
         location.addEventListener("click", () => {
           directions.setOrigin(userCoordinates);
           directions.setDestination([lng, lat]);
+          map.flyTo({ center: [lng, lat], zoom: 15 });
         });
       });
+    }
+
+    // Modal and Payment
+    document.addEventListener("DOMContentLoaded", function () {
+      const modal = document.getElementById("call-modal");
+      const closeBtn = document.getElementById("close-modal");
+
+      document.querySelectorAll(".accept-btn").forEach(button => {
+        button.addEventListener("click", function () {
+          const phone = this.getAttribute("data-phone");
+          const landlordName = this.closest(".location").querySelector("strong").innerText;
+
+          document.getElementById("landlord-name").innerText = landlordName;
+          document.getElementById("landlord-phone").innerText = phone;
+          document.getElementById("call-number").href = "tel:" + phone;
+          document.getElementById("whatsapp-link").href = "https://wa.me/" + phone;
+
+          modal.classList.remove("hidden");
+        });
+      });
+
+      closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+      window.addEventListener("click", e => {
+        if (e.target === modal) modal.classList.add("hidden");
+      });
+
+      document.querySelectorAll(".reject-btn").forEach(button => {
+        button.addEventListener("click", function () {
+          this.closest(".location").remove();
+        });
+      });
+    });
+
+    function showStatus(message) {
+      document.getElementById("payment-status").textContent = message;
     }
   </script>
 </body>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>City Car Parking Management</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <div class="logo">CityPark</div>
+    <button class="login-btn">Log in</button>
+  </nav>
+
+  <main class="content">
+    <p class="date">April 30, 2025</p>
+    <h1>Introducing City Car Parking Management</h1>
+    <div class="buttons">
+        <a href="{% url 'Parker_Login' %}" class="main-btn">Getting Started</a>
+
+    </div>
+    <p class="tagline">Helps find parking wherever you are.</p>
+  </main>
+  <style>
+    /* Reset & base setup */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #000;
+  color: #fff;
+}
+
+/* Navbar */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #333;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.login-btn {
+  background: #222;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #333;
+}
+
+/* Main content */
+.content {
+  max-width: 700px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.date {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  margin-bottom: 20px;
+}
+
+.main-btn {
+  background: #333;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.main-btn:hover {
+  background: #444;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: #ccc;
+  margin-top: 10px;
+}
+
+  </style>
+</body>
+</html>

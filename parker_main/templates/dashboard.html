@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #e5e5e5;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #22d3ee;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background-color: #1c1c1c;
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      flex: 1;
+      text-align: center;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      color: #a5f3fc;
+      margin-bottom: 0.5rem;
+    }
+
+    .card p {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #1c1c1c;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background-color: #2a2a2a;
+      color: #a5f3fc;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: #262626;
+    }
+
+    .empty {
+      color: #a1a1aa;
+      font-style: italic;
+    }
+
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Admin Dashboard</h1>
+
+  <div class="stats">
+    <div class="card">
+      <h2>Total Parkers</h2>
+      <p>{{ parkers|length }}</p>
+    </div>
+    <div class="card">
+      <h2>Total Landlords</h2>
+      <p>{{ landlords|length }}</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h1>Parkers</h1>
+    {% if parkers %}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Vehicle</th>
+          <th>Vehicle No</th>
+          <th>PIN</th>
+          <th>Registered At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in parkers %}
+        <tr>
+          <td>{{ p.name }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ p.phone }}</td>
+          <td>{{ p.vehicle_type|capfirst }}</td>
+          <td>{{ p.vehicle_number }}</td>
+          <td>{{ p.pin }}</td>
+          <td>{{ p.registered_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty">No parkers found.</p>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h1>Landlords</h1>
+    {% if landlords %}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>City</th>
+          <th>State</th>
+          <th>PIN</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in landlords %}
+        <tr>
+          <td>{{ l.name }}</td>
+          <td>{{ l.email }}</td>
+          <td>{{ l.phone }}</td>
+          <td>{{ l.address }}</td>
+          <td>{{ l.city }}</td>
+          <td>{{ l.state }}</td>
+          <td>{{ l.pin }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="empty">No landlords found.</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>

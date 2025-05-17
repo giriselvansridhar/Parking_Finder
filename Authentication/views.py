@@ -277,3 +277,18 @@ def Login_LandLord(request):
 # Define a view for the Parker Sign Up page
 
 
+
+def home(request):
+    return render(request, 'index.html')
+
+
+
+
+
+from .models import Parker, Landlord
+
+def dashboard_view(request):
+    return render(request, 'dashboard.html', {
+        'parkers': Parker.objects.all(),
+        'landlords': Landlord.objects.all(),
+    })

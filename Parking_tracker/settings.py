@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Authentication',
-    'parker_main'
+    'parker_main',
+    'colorfield'
 ]
 
 MIDDLEWARE = [

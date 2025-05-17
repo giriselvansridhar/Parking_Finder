@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+
+{% block nav-global %}
+  <div id="user-tools">
+    <a href="{% url 'admin:index' %}">Home</a> |
+    <a href="{% url 'dashboard' %}">Dashboard</a> |
+    <a href="{% url 'admin:logout' %}">Logout</a>
+  </div>
+{% endblock %}

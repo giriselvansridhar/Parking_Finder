@@ -9,53 +9,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-<body class="bg-gradient-to-r from-cyan-400 to-blue-500 h-screen flex items-center justify-center">
+<body class="bg-gradient-to-r from-black to-gray-900 h-screen flex items-center justify-center">
 
-    <form method="POST" class="bg-white p-6 rounded-lg shadow-lg w-80">
+    <form method="POST" class="bg-gray-900 p-8 rounded-lg shadow-2xl w-full max-w-md transform transition-all duration-300 hover:scale-105">
         {% csrf_token %}
-        <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">Parker Login</h2>
+        <h2 class="text-4xl font-bold text-center text-white mb-6">Parker Login</h2>
 
         <!-- Phone Number Input -->
-        <div class="mb-4 relative">
-            <input type="text" id="phone" name="phone" placeholder="+91XXXXXXXXXX"  required
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <i class="fas fa-phone absolute right-3 top-3 text-gray-400"></i>
+        <div class="mb-6 relative">
+            <input type="text" id="phone" name="phone" placeholder="+91XXXXXXXXXX" required
+                class="w-full px-4 py-3 border border-gray-700 rounded-lg text-white bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out" />
+            <i class="fas fa-phone absolute right-4 top-3 text-gray-400"></i>
         </div>
 
         <!-- PIN Input Fields -->
-        <div class="pin-container flex justify-between mb-4">
-            <input type="text" name="pin1" class="pin-box w-12 h-12 text-center border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxlength="1" oninput="moveNext(this,1)" />
-            <input type="text" name="pin2" class="pin-box w-12 h-12 text-center border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxlength="1" oninput="moveNext(this,2)" />
-            <input type="text" name="pin3" class="pin-box w-12 h-12 text-center border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxlength="1" oninput="moveNext(this,3)" />
-            <input type="text" name="pin4" class="pin-box w-12 h-12 text-center border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div class="pin-container flex justify-between mb-6 space-x-4">
+            <input type="text" name="pin1" class="pin-box w-16 h-16 text-center border border-gray-700 rounded-lg text-2xl text-white bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out"
+                maxlength="1" oninput="moveNext(this, 1)" />
+            <input type="text" name="pin2" class="pin-box w-16 h-16 text-center border border-gray-700 rounded-lg text-2xl text-white bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out"
+                maxlength="1" oninput="moveNext(this, 2)" />
+            <input type="text" name="pin3" class="pin-box w-16 h-16 text-center border border-gray-700 rounded-lg text-2xl text-white bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out"
+                maxlength="1" oninput="moveNext(this, 3)" />
+            <input type="text" name="pin4" class="pin-box w-16 h-16 text-center border border-gray-700 rounded-lg text-2xl text-white bg-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition duration-200 ease-in-out"
                 maxlength="1" />
         </div>
 
         <!-- Reset Pass Code -->
-        <p class="reset-link text-blue-600 text-sm underline cursor-pointer mb-4" onclick="resetPassCode()">Reset Pass Code</p>
+        <p class="reset-link text-teal-500 text-sm text-center underline cursor-pointer mb-6" onclick="resetPassCode()">Reset Pass Code</p>
 
         <!-- Login Button -->
         <button type="submit"
-            class="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 mb-4">
-            <i class="fas fa-sign-in-alt mr-2"></i>Login
+            class="w-full py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300 ease-in-out mb-6 flex items-center justify-center focus:ring-4 focus:ring-teal-300">
+            <i class="fas fa-sign-in-alt mr-3"></i>Login
         </button>
 
         <!-- Sign Up Link -->
         <a href="{% url 'Parker_Register' %}"
-            class="text-blue-600 text-sm underline block text-center mb-4">
+            class="text-teal-500 text-sm underline block text-center mb-4">
             <i class="fas fa-user-plus mr-1"></i>Sign Up
         </a>
 
-        
-        
-
         <!-- Switch to Landlord Login -->
-        <a href="{% url 'LandLord_Login' %}"
-            class="switch-button w-auto py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-red-500 transition duration-300 flex items-center justify-center">
-            <i class="fas fa-home mr-2"></i>Are you a Landlord?
+        <a href="{% url 'LandLord_Register' %}"
+            class="switch-button w-full py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition duration-300 ease-in-out flex items-center justify-center focus:ring-4 focus:ring-teal-300">
+            <i class="fas fa-home mr-3"></i>Are you a Landlord? Sign Up
         </a>
     </form>
 
@@ -68,14 +65,13 @@
                 }
             }
         }
+
         function resetPassCode() {
             const boxes = document.querySelectorAll(".pin-box");
             boxes.forEach(box => box.value = "");
             boxes[0].focus();
             alert("Pass Code Reset!");
         }
-        
-        
     </script>
 </body>
 
